@@ -1,18 +1,17 @@
-USE COAR_CONNECT;
+USE master;
 GO
 
-DROP TABLE IF EXISTS seguimiento_academico;
-DROP TABLE IF EXISTS resultados;
-DROP TABLE IF EXISTS simulacros;
-DROP TABLE IF EXISTS materiales;
-DROP TABLE IF EXISTS inscripciones;
-DROP TABLE IF EXISTS horarios;
-DROP TABLE IF EXISTS cursos;
-DROP TABLE IF EXISTS docentes;
-DROP TABLE IF EXISTS padres;
-DROP TABLE IF EXISTS estudiantes;
-DROP TABLE IF EXISTS usuarios;
-DROP TABLE IF EXISTS roles;
+IF DB_ID('COAR_CONNECT') IS NOT NULL
+BEGIN
+    ALTER DATABASE COAR_CONNECT SET SINGLE_USER WITH ROLLBACK IMMEDIATE;
+    DROP DATABASE COAR_CONNECT;
+END
+GO
+
+CREATE DATABASE COAR_CONNECT;
+GO
+
+USE COAR_CONNECT;
 GO
 
 CREATE TABLE roles (
@@ -33,22 +32,23 @@ CREATE TABLE usuarios (
     FOREIGN KEY (rol_id) REFERENCES roles(id)
 );
 
-CREATE TABLE estudiantes (
-    id INT IDENTITY(1,1) PRIMARY KEY,
-    usuario_id INT NOT NULL,
-    grado VARCHAR(50) NOT NULL,
-    colegio VARCHAR(150) NOT NULL,
-    distrito VARCHAR(100) NOT NULL,
-    FOREIGN KEY (usuario_id) REFERENCES usuarios(id)
-);
-
 CREATE TABLE padres (
     id INT IDENTITY(1,1) PRIMARY KEY,
     usuario_id INT NOT NULL,
-    estudiante_id INT NOT NULL,
     parentesco VARCHAR(50) NOT NULL,
+    codigo_vinculacion VARCHAR(50) NULL,
+    FOREIGN KEY (usuario_id) REFERENCES usuarios(id)
+);
+
+CREATE TABLE estudiantes (
+    id INT IDENTITY(1,1) PRIMARY KEY,
+    usuario_id INT NOT NULL,
+    padre_id INT NOT NULL,
+    grado VARCHAR(50) NOT NULL,
+    colegio VARCHAR(150) NOT NULL,
+    distrito VARCHAR(100) NOT NULL,
     FOREIGN KEY (usuario_id) REFERENCES usuarios(id),
-    FOREIGN KEY (estudiante_id) REFERENCES estudiantes(id)
+    FOREIGN KEY (padre_id) REFERENCES padres(id)
 );
 
 CREATE TABLE docentes (
